@@ -4,20 +4,18 @@ import Entities.Card;
 import Entities.Deck;
 import Entities.Player;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
-import static Game.Interactions.IsValidMove;
+import static Game.Interactions.*;
 
 public class Game {
     Deck pachet;
     Player jucator;
     Player calculator;
     Card carte;
-    List<Card> cartiJucate;
     boolean playerTurn;
     Scanner input = new Scanner(System.in);
+    String culoare = "";
 
     public Game(){
         this.pachet = new Deck();
@@ -32,7 +30,6 @@ public class Game {
         this.carte = new Card();
         this.carte = this.pachet.TakeCard();
 
-        this.cartiJucate = new ArrayList<>();
         this.playerTurn = true;
     }
 
@@ -90,6 +87,8 @@ public class Game {
                                     System.out.println(this.jucator.GetCardByIndex(index).toString());
 
                                     this.carte = this.jucator.PlayCard(index);
+
+                                    SpecialCard(this.carte);
                                     break;
                                 }
                             }
@@ -99,7 +98,7 @@ public class Game {
 
                 }
 
-                playerTurn = false;
+                playerTurn = !playerTurn;
             }
             else{
                 // mutarea calculatorului
@@ -133,7 +132,7 @@ public class Game {
                     }
                 }
 
-                playerTurn = true;
+                playerTurn = !playerTurn;
             }
             PrintGameStatus();
         }
@@ -155,5 +154,20 @@ public class Game {
                 return true;
         }
         return false;
+    }
+
+    public void SpecialCard(Card card){
+        switch(card.valoare){
+            case As: this.playerTurn = HandleAce(this.playerTurn);
+                break;
+            case Doi, J: HandleCounterAttack();
+                break;
+            case Sapte: this.culoare = HandleSeven(this.culoare);
+                break;
+            case Patru, K: HandleStopper();
+                break;
+            default:
+                break;
+        }
     }
 }

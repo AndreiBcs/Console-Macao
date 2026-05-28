@@ -1,7 +1,10 @@
 package Entities;
 
+import Entities.Common.Rank;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Player {
     List<Card> mana;
@@ -41,5 +44,23 @@ public class Player {
 
     public int NumberOfCards() {
         return this.mana.size();
+    }
+
+    public boolean HasStopperResponse(){
+
+        return this.mana.stream()
+                .anyMatch(carte ->
+                        carte.valoare == Rank.Patru
+                                || carte.valoare == Rank.K);
+
+    }
+
+    public boolean HasCounterResponse(){
+
+        return this.mana.stream()
+                .anyMatch(carte ->
+                        carte.valoare == Rank.Doi
+                                || carte.valoare == Rank.J);
+
     }
 }
