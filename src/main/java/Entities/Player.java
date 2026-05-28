@@ -4,13 +4,12 @@ import Entities.Common.Rank;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Player {
     List<Card> mana;
 
     public Player() {
-        this.mana = new ArrayList<Card>();
+        this.mana = new ArrayList<>();
     }
 
     @Override
@@ -38,15 +37,15 @@ public class Player {
         return this.mana.get(index);
     }
 
-    public boolean IsEmpty(){
-        return this.mana.isEmpty();
+    public boolean NotEmpty(){
+        return !this.mana.isEmpty();
     }
 
     public int NumberOfCards() {
         return this.mana.size();
     }
 
-    public boolean HasStopperResponse(){
+    public boolean HasStopResponse(){
 
         return this.mana.stream()
                 .anyMatch(carte ->

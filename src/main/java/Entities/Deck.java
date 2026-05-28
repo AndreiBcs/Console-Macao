@@ -11,7 +11,7 @@ public class Deck {
     List<Card> pachet;
 
     public Deck() {
-        this.pachet = new ArrayList<Card>();
+        this.pachet = new ArrayList<>();
     }
 
     public void InitialiseDeck(){

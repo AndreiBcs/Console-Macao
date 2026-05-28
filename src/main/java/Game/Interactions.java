@@ -15,14 +15,14 @@ public class Interactions {
         return !turn;
     }
 
-    public static String HandleSeven(String suit) {
+    public static String HandleSeven() {
         System.out.println("Ai jucat un Sapte, poti schimba culoarea");
         System.out.println("Apasa numarul culorii in care vrei sa schimbi");
         System.out.println("0 - Romb" + System.lineSeparator() +
                             "1 - Rosu" + System.lineSeparator() +
                             "2 - Negru" + System.lineSeparator() +
                             "3 - Trefla");
-        suit = "";
+        String suit = "";
 
         while (true) {
             var sc = new Scanner(System.in);
@@ -45,11 +45,4 @@ public class Interactions {
         return suit;
     }
 
-    public static void HandleCounterAttack() {
-
-    }
-
-    public static void HandleStopper(){
-
-    }
 }

@@ -1,6 +1,7 @@
 package Game;
 
 import Entities.Card;
+import Entities.Common.Rank;
 import Entities.Deck;
 import Entities.Player;
 
@@ -16,6 +17,7 @@ public class Game {
     boolean playerTurn;
     Scanner input = new Scanner(System.in);
     String culoare = "";
+    boolean esteAtacat = false;
 
     public Game(){
         this.pachet = new Deck();
@@ -37,7 +39,7 @@ public class Game {
         System.out.println("Start Joc");
         PrintGameStatus();
 
-        while(!this.pachet.IsEmpty() && !this.jucator.IsEmpty() && !this.calculator.IsEmpty()){
+        while(!this.pachet.IsEmpty() && this.jucator.NotEmpty() && this.calculator.NotEmpty()){
 
             // un boolean controleaza turele
 
@@ -45,7 +47,7 @@ public class Game {
                 // mutarea jucatorului
                 // daca in mana nu ai carti compatibile poti doar sa tragi carte
 
-                if(!CanPlayCard(this.jucator, this.carte)){
+                if(CannotPlayCard(this.jucator, this.carte)){
 
                     System.out.println("'t' - trage carte");
 
@@ -89,6 +91,13 @@ public class Game {
                                     this.carte = this.jucator.PlayCard(index);
 
                                     SpecialCard(this.carte);
+
+                                    if(this.carte.valoare == Rank.Doi
+                                            || this.carte.valoare == Rank.J){
+
+                                        this.esteAtacat = true;
+                                    }
+
                                     break;
                                 }
                             }
@@ -98,23 +107,23 @@ public class Game {
 
                 }
 
-                playerTurn = !playerTurn;
             }
             else{
                 // mutarea calculatorului
 
                 try{
                     // delay pentru a nu muta instant
-
+                    // noinspection BusyWait
                     Thread.sleep(3000);
-                }catch(InterruptedException  e){
+                }
+                catch(InterruptedException  e){
                     Thread.currentThread().interrupt();
                     return;
                 }
 
                 // actiuni pentru calculator
 
-                if(!CanPlayCard(this.calculator, this.carte)){
+                if(CannotPlayCard(this.calculator, this.carte)){
 
                     this.calculator.AddCard(this.pachet.TakeCard());
                     System.out.println("Calculatorul a luat o carte din pachet");
@@ -132,8 +141,8 @@ public class Game {
                     }
                 }
 
-                playerTurn = !playerTurn;
             }
+            playerTurn = !playerTurn;
             PrintGameStatus();
         }
         System.out.println("Stop Joc");
@@ -148,23 +157,19 @@ public class Game {
         System.out.println("-------------------------------------");
     }
 
-    public static boolean CanPlayCard(Player player, Card card){
+    public static boolean CannotPlayCard(Player player, Card card){
         for(int i = 0; i < player.NumberOfCards(); i++){
             if(IsValidMove(player.GetCardByIndex(i), card))
-                return true;
+                return false;
         }
-        return false;
+        return true;
     }
 
     public void SpecialCard(Card card){
         switch(card.valoare){
             case As: this.playerTurn = HandleAce(this.playerTurn);
                 break;
-            case Doi, J: HandleCounterAttack();
-                break;
-            case Sapte: this.culoare = HandleSeven(this.culoare);
-                break;
-            case Patru, K: HandleStopper();
+            case Sapte: this.culoare = HandleSeven();
                 break;
             default:
                 break;
