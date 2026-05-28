@@ -62,4 +62,26 @@ public class Player {
                                 || carte.valoare == Rank.J);
 
     }
+
+    public int GetStopCardIndex(){
+        for(int i = 0; i < this.mana.size(); i++){
+            if(this.mana.get(i).valoare == Rank.Patru
+                    || this.mana.get(i).valoare == Rank.K){
+
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public int GetAttackCardIndex(){
+        for(int i = 0; i < this.mana.size(); i++){
+            if(this.mana.get(i).valoare == Rank.Doi
+                    || this.mana.get(i).valoare == Rank.J){
+
+                return i;
+            }
+        }
+        return -1;
+    }
 }

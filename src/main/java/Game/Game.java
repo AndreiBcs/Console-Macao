@@ -18,6 +18,7 @@ public class Game {
     Scanner input = new Scanner(System.in);
     String culoare = "";
     boolean esteAtacat = false;
+    int numarCartiAtac = 0;
 
     public Game(){
         this.pachet = new Deck();
@@ -47,66 +48,139 @@ public class Game {
                 // mutarea jucatorului
                 // daca in mana nu ai carti compatibile poti doar sa tragi carte
 
-                if(CannotPlayCard(this.jucator, this.carte)){
+                if(this.esteAtacat){
 
-                    System.out.println("'t' - trage carte");
+                    // actiuniile jucatorului cand este atacat
 
-                    char c = input.next().charAt(0);
+                    if(this.jucator.HasStopResponse() || this.jucator.HasCounterResponse()){
 
-                    // actiuni pentru jucator
+                        System.out.println("Trebuie sa alegi:");
+                        System.out.println("Joaca Doi sau J pentru contra-atac");
+                        System.out.println("Joaca Patru sau K pentru a opri atacul");
 
-                    while(true){
-                        if(c == 't'){
-                            this.jucator.AddCard(this.pachet.TakeCard());
-                            System.out.println("Ai luat o carte din pachet");
-                            break;
+                        while(true) {
+                            int index = input.nextInt();
+
+                            // joaca o carte de contra-atac
+
+                            if ((index >= 0 && index < this.jucator.NumberOfCards()) &&
+                                    ((this.jucator.GetCardByIndex(index).valoare == Rank.Doi) &&
+                                            (this.jucator.GetCardByIndex(index).valoare == Rank.J))) {
+
+                                System.out.println("Ai contra-atacat:");
+                                System.out.println(this.jucator.GetCardByIndex(index).toString());
+
+                                this.carte = this.jucator.PlayCard(index);
+                                this.numarCartiAtac += 2;
+                                break;
+                            }
+
+                            // joaca o carte de stop
+
+                            if ((index >= 0 && index < this.jucator.NumberOfCards()) &&
+                                    ((this.jucator.GetCardByIndex(index).valoare == Rank.Patru) &&
+                                            (this.jucator.GetCardByIndex(index).valoare == Rank.K))) {
+
+                                System.out.println("Ai oprit atacul:");
+                                System.out.println(this.jucator.GetCardByIndex(index).toString());
+
+                                this.carte = this.jucator.PlayCard(index);
+                                this.numarCartiAtac = 0;
+                                this.esteAtacat = false;
+                                break;
+                            }
                         }
+                        // final raspunsul jucatorului la atac
                     }
+                    else {
+                        // nu are carti de contra, nici de stop
 
+                        System.out.println("Nu poti opri atacul, trebuie sa tragi "
+                                + this.numarCartiAtac + " carti");
+                        System.out.println("'t' - trage carti");
+
+                        char c = input.next().charAt(0);
+
+                        while(true){
+                            if(c == 't'){
+                                for(int i = 0; i < this.numarCartiAtac; i++){
+                                    this.calculator.AddCard(this.pachet.TakeCard());
+                                }
+
+                                System.out.println("Ai luat " + this.numarCartiAtac + " din pachet");
+                                break;
+                            }
+                        }
+                        this.numarCartiAtac = 0;
+                        this.esteAtacat = false;
+                    }
+                    // final actiunea jucatorului cand este atacat
                 }
                 else{
-                    System.out.println("'j' - joaca carte");
-                    System.out.println("'t' - trage carte");
+                    // actiuniile jucatorului cand nu e atacat
 
-                    char c = input.next().charAt(0);
+                    if(CannotPlayCard(this.jucator, this.carte)){
 
-                    // actiuni pentru jucator
+                        System.out.println("'t' - trage carte");
 
-                    while(true){
-                        if(c == 't'){
-                            this.jucator.AddCard(this.pachet.TakeCard());
-                            System.out.println("Ai luat o carte din pachet");
-                            break;
-                        }
-                        if(c == 'j'){
-                            System.out.println("Apasa numarul cartii pe care vrei sa o joci");
-                            while(true){
-                                int index = input.nextInt();
-                                if((index >= 0 && index < this.jucator.NumberOfCards()) &&
-                                        IsValidMove(this.carte, this.jucator.GetCardByIndex(index))) {
+                        char c = input.next().charAt(0);
 
-                                    System.out.println("Ai jucat:");
-                                    System.out.println(this.jucator.GetCardByIndex(index).toString());
+                        // actiuni pentru jucator
 
-                                    this.carte = this.jucator.PlayCard(index);
-
-                                    SpecialCard(this.carte);
-
-                                    if(this.carte.valoare == Rank.Doi
-                                            || this.carte.valoare == Rank.J){
-
-                                        this.esteAtacat = true;
-                                    }
-
-                                    break;
-                                }
+                        while(true){
+                            if(c == 't'){
+                                this.jucator.AddCard(this.pachet.TakeCard());
+                                System.out.println("Ai luat o carte din pachet");
+                                break;
                             }
-                            break;
                         }
+
                     }
+                    else{
+                        System.out.println("'j' - joaca carte");
+                        System.out.println("'t' - trage carte");
 
+                        char c = input.next().charAt(0);
+
+                        // actiuni pentru jucator
+
+                        while(true){
+                            if(c == 't'){
+                                this.jucator.AddCard(this.pachet.TakeCard());
+                                System.out.println("Ai luat o carte din pachet");
+                                break;
+                            }
+                            if(c == 'j'){
+                                System.out.println("Apasa numarul cartii pe care vrei sa o joci");
+                                while(true){
+                                    int index = input.nextInt();
+                                    if((index >= 0 && index < this.jucator.NumberOfCards()) &&
+                                            IsValidMove(this.carte, this.jucator.GetCardByIndex(index))) {
+
+                                        System.out.println("Ai jucat:");
+                                        System.out.println(this.jucator.GetCardByIndex(index).toString());
+
+                                        this.carte = this.jucator.PlayCard(index);
+
+                                        SpecialCard(this.carte);
+
+                                        if(this.carte.valoare == Rank.Doi
+                                                || this.carte.valoare == Rank.J){
+
+                                            this.esteAtacat = true;
+                                        }
+
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+
+                    }
+                    // final actiunea jucatorului cand nu e atacat
                 }
-
+                // final mutarea jucatorului
             }
             else{
                 // mutarea calculatorului
@@ -123,22 +197,83 @@ public class Game {
 
                 // actiuni pentru calculator
 
-                if(CannotPlayCard(this.calculator, this.carte)){
+                if(this.esteAtacat){
 
-                    this.calculator.AddCard(this.pachet.TakeCard());
-                    System.out.println("Calculatorul a luat o carte din pachet");
+                    // verifica daca poate sa contra-atace, apoi daca poate sa opreasca atacul
+
+                    if(this.calculator.HasCounterResponse()){
+
+                        // are carti de cotra-atac
+
+                        int index = this.calculator.GetAttackCardIndex();
+
+                        if(index >= 0){
+                            System.out.println("Calculatorul a contra-atacat:");
+                            System.out.println(this.calculator.GetCardByIndex(index).toString());
+                            System.out.println("Numarul de carti din atac este:" + numarCartiAtac);
+
+                            this.carte = this.calculator.PlayCard(index);
+
+                            this.numarCartiAtac += 2;
+                            this.esteAtacat = false;
+                        }
+                        else{
+                            System.out.println("A aparut o eroare!!!");
+                        }
+
+                    }
+                    else if(this.calculator.HasStopResponse()){
+
+                        // are carti de aparare
+
+                        int index = this.calculator.GetStopCardIndex();
+
+                        if(index >= 0){
+                            System.out.println("Calculatorul a oprit atacul:");
+                            System.out.println(this.calculator.GetCardByIndex(index).toString());
+
+                            this.carte = this.calculator.PlayCard(index);
+
+                            this.numarCartiAtac = 0;
+                            this.esteAtacat = false;
+                        }
+                        else{
+                            System.out.println("A aparut o eroare!!!");
+                        }
+
+                    }
+                    else{
+                        // daca nu are ia carti din pchet
+
+                        for(int i = 0; i < this.numarCartiAtac; i++){
+                            this.calculator.AddCard(this.pachet.TakeCard());
+                        }
+
+                        this.numarCartiAtac = 0;
+                        this.esteAtacat = false;
+                    }
+
                 }
                 else{
-                    for(int i = 0; i < this.calculator.NumberOfCards(); i++){
-                        if(IsValidMove(this.calculator.GetCardByIndex(i), this.carte)){
 
-                            System.out.println("Calculatorul a jucat:");
-                            System.out.println(this.calculator.GetCardByIndex(i).toString());
+                    if(CannotPlayCard(this.calculator, this.carte)){
 
-                            this.carte = this.calculator.PlayCard(i);
-                            break;
+                        this.calculator.AddCard(this.pachet.TakeCard());
+                        System.out.println("Calculatorul a luat o carte din pachet");
+                    }
+                    else{
+                        for(int i = 0; i < this.calculator.NumberOfCards(); i++){
+                            if(IsValidMove(this.calculator.GetCardByIndex(i), this.carte)){
+
+                                System.out.println("Calculatorul a jucat:");
+                                System.out.println(this.calculator.GetCardByIndex(i).toString());
+
+                                this.carte = this.calculator.PlayCard(i);
+                                break;
+                            }
                         }
                     }
+
                 }
 
             }
