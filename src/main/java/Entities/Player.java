@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Player {
-    List<Card> mana;
+    public List<Card> mana;
 
     public Player() {
         this.mana = new ArrayList<>();

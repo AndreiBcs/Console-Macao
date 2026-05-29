@@ -2,6 +2,7 @@ package Game;
 
 import Entities.Card;
 import Entities.Common.Rank;
+import Entities.Common.Suit;
 import Entities.Deck;
 import Entities.Player;
 
@@ -16,9 +17,9 @@ public class Game {
     Card carte;
     boolean playerTurn;
     Scanner input = new Scanner(System.in);
-    String culoare = "";
+    Suit culoare = null;
     boolean esteAtacat = false;
-    int numarCartiAtac = 0;
+    int numarCartiAtac = 2;
 
     public Game(){
         this.pachet = new Deck();
@@ -112,15 +113,18 @@ public class Game {
     }
 
     public void PrintGameStatus(){
-        System.out.println("-------------------------------------");
+        System.out.println("-----/-----/-----/-----/-----/-----/-----/-----/-----/--");
+        System.out.println("----/-----/-----/-----/-----/-----/-----/-----/-----/---");
+        System.out.println("---/-----/-----/-----/-----/-----/-----/-----/-----/----");
+        System.out.println("--/-----/-----/-----/-----/-----/-----/-----/-----/-----");
         System.out.println("Cartea jucata:" + System.lineSeparator() + this.carte.toString());
         System.out.println();
         System.out.println("Cartile tale:" + System.lineSeparator() + this.jucator.toString());
         System.out.println("Calculatorul are " + this.calculator.NumberOfCards() +" carti");
-        System.out.println("-------------------------------------");
-        System.lineSeparator();
-        System.lineSeparator();
-        System.lineSeparator();
+        System.out.println("-----/-----/-----/-----/-----/-----/-----/-----/-----/--");
+        System.out.println("----/-----/-----/-----/-----/-----/-----/-----/-----/---");
+        System.out.println("---/-----/-----/-----/-----/-----/-----/-----/-----/----");
+        System.out.println("--/-----/-----/-----/-----/-----/-----/-----/-----/-----");
     }
 
     public void CheckGameStatus(){
@@ -154,11 +158,18 @@ public class Game {
         return true;
     }
 
-    public void HandlePlayerSpecialCard(Card card){
+    public void HandlePlayerSpecialCard(Card card, Player player){
         switch(card.valoare){
             case As: this.playerTurn = HandleAce(this.playerTurn);
                 break;
-            case Sapte: this.culoare = HandleSeven();
+            case Sapte: {
+                    if(player == this.jucator){
+                        this.culoare = HandlePlayerSeven();
+                    }
+                    else if(player == this.calculator){
+                        this.culoare = HandleCalculatorSeven(this.calculator);
+                    }
+                }
                 break;
             default:
                 break;
@@ -191,6 +202,13 @@ public class Game {
                     System.out.println(this.calculator.GetCardByIndex(i).toString());
 
                     this.carte = this.calculator.PlayCard(i);
+
+                    if((this.carte.valoare == Rank.J)
+                            || (this.carte.valoare == Rank.Doi)){
+
+                        this.esteAtacat = true;
+                    }
+
                     break;
                 }
             }
@@ -220,7 +238,7 @@ public class Game {
             System.out.println("Calculatorul a oprit atacul:");
             System.out.println(this.calculator.GetCardByIndex(index).toString());
 
-            this.numarCartiAtac = 0;
+            this.numarCartiAtac = 2;
             this.esteAtacat = false;
 
             this.carte = this.calculator.PlayCard(index);
@@ -233,7 +251,7 @@ public class Game {
             }
             System.out.println("Calculatorul a luat " + this.numarCartiAtac + " din pachet");
 
-            this.numarCartiAtac = 0;
+            this.numarCartiAtac = 2;
             this.esteAtacat = false;
         }
 
@@ -266,7 +284,7 @@ public class Game {
 
                         this.carte = this.jucator.PlayCard(index);
 
-                        HandlePlayerSpecialCard(this.carte);
+                        HandlePlayerSpecialCard(this.carte, this.jucator);
 
                         if(this.carte.valoare == Rank.Doi
                                 || this.carte.valoare == Rank.J){
@@ -279,7 +297,6 @@ public class Game {
                 break;
             }
         }
-        // final actiuni jucator
     }
 
     public void HandlePlayerLosingAttack(){
@@ -293,7 +310,7 @@ public class Game {
         while(true){
             if(c == 't'){
                 for(int i = 0; i < this.numarCartiAtac; i++){
-                    this.calculator.AddCard(this.pachet.TakeCard());
+                    this.jucator.AddCard(this.pachet.TakeCard());
                 }
 
                 System.out.println("Ai luat " + this.numarCartiAtac + " din pachet");
@@ -301,45 +318,69 @@ public class Game {
             }
         }
 
-        this.numarCartiAtac = 0;
+        this.numarCartiAtac = 2;
         this.esteAtacat = false;
     }
 
     public void HandlePlayerAttackMove(){
 
-        System.out.println("Trebuie sa alegi:");
+        System.out.println("Esti atacat!");
         System.out.println("Joaca Doi sau J pentru contra-atac");
         System.out.println("Joaca Patru sau K pentru a opri atacul");
+        System.lineSeparator();
+        System.out.println("'j' - joaca carte");
+        System.out.println("'t' - trage carte");
 
-        while(true) {
-            int index = input.nextInt();
+        char c = input.next().charAt(0);
 
-            // joaca o carte de contra-atac
+        // actiuni pentru jucator
 
-            if ((index >= 0 && index < this.jucator.NumberOfCards()) &&
-                    ((this.jucator.GetCardByIndex(index).valoare == Rank.Doi) ||
-                            (this.jucator.GetCardByIndex(index).valoare == Rank.J))) {
+        while(true){
+            if(c == 't'){
+                for(int i = 0; i < this.numarCartiAtac; i++){
+                    this.jucator.AddCard(this.pachet.TakeCard());
+                }
 
-                System.out.println("Ai contra-atacat:");
-                System.out.println(this.jucator.GetCardByIndex(index).toString());
+                System.out.println("Ai luat " + this.numarCartiAtac + " din pachet");
 
-                this.carte = this.jucator.PlayCard(index);
-                this.numarCartiAtac += 2;
+                this.numarCartiAtac = 2;
+                this.esteAtacat = false;
                 break;
             }
+            if(c == 'j'){
+                System.out.println("Apasa numarul cartii pe care vrei sa o joci");
+                while(true){
+                    int index = input.nextInt();
 
-            // joaca o carte de stop
+                    // joaca o carte de contra-atac
 
-            if ((index >= 0 && index < this.jucator.NumberOfCards()) &&
-                    ((this.jucator.GetCardByIndex(index).valoare == Rank.Patru) ||
-                            (this.jucator.GetCardByIndex(index).valoare == Rank.K))) {
+                    if ((index >= 0 && index < this.jucator.NumberOfCards()) &&
+                            ((this.jucator.GetCardByIndex(index).valoare == Rank.Doi) ||
+                                    (this.jucator.GetCardByIndex(index).valoare == Rank.J))) {
 
-                System.out.println("Ai oprit atacul:");
-                System.out.println(this.jucator.GetCardByIndex(index).toString());
+                        System.out.println("Ai contra-atacat:");
+                        System.out.println(this.jucator.GetCardByIndex(index).toString());
 
-                this.carte = this.jucator.PlayCard(index);
-                this.numarCartiAtac = 0;
-                this.esteAtacat = false;
+                        this.carte = this.jucator.PlayCard(index);
+                        this.numarCartiAtac += 2;
+                        break;
+                    }
+
+                    // joaca o carte de stop
+
+                    if ((index >= 0 && index < this.jucator.NumberOfCards()) &&
+                            ((this.jucator.GetCardByIndex(index).valoare == Rank.Patru) ||
+                                    (this.jucator.GetCardByIndex(index).valoare == Rank.K))) {
+
+                        System.out.println("Ai oprit atacul:");
+                        System.out.println(this.jucator.GetCardByIndex(index).toString());
+
+                        this.carte = this.jucator.PlayCard(index);
+                        this.numarCartiAtac = 2;
+                        this.esteAtacat = false;
+                        break;
+                    }
+                }
                 break;
             }
         }
