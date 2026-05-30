@@ -110,7 +110,7 @@ public class Game {
         System.out.println("Stop Joc");
     }
 
-    public void PrintGameStatus(){
+    void PrintGameStatus(){
         System.out.println("-----/-----/-----/-----/-----/-----/-----/-----/-----/--");
         System.out.println("----/-----/-----/-----/-----/-----/-----/-----/-----/---");
         System.out.println("---/-----/-----/-----/-----/-----/-----/-----/-----/----");
@@ -125,7 +125,7 @@ public class Game {
         System.out.println("--/-----/-----/-----/-----/-----/-----/-----/-----/-----");
     }
 
-    public void CheckGameStatus(){
+    void CheckGameStatus(){
 
         // verifica daca jucatorul / calculatorul a ramas fara carti
 
@@ -144,11 +144,16 @@ public class Game {
             this.pachet = new Deck();
             this.pachet.InitialiseDeck();
 
-            // aici vor trebui eliminate cartile deja folosite din nout pachet
+            this.pachet.RemoveCard(this.carte);
+
+            this.jucator.mana.forEach(card -> this.pachet.RemoveCard(card));
+            this.calculator.mana.forEach(card -> this.pachet.RemoveCard(card));
+
+            this.pachet.Shuffle();
         }
     }
 
-    public static boolean CannotPlayCard(Player player, Card card){
+    static boolean CannotPlayCard(Player player, Card card){
         for(int i = 0; i < player.NumberOfCards(); i++){
             if(IsValidMove(player.GetCardByIndex(i), card))
                 return false;
@@ -156,7 +161,7 @@ public class Game {
         return true;
     }
 
-    public void HandleSpecialCard(Card card, Player player){
+    void HandleSpecialCard(Card card, Player player){
         switch(card.valoare){
             case As: this.playerTurn = HandleAce(this.playerTurn);
                 break;
@@ -177,7 +182,7 @@ public class Game {
         }
     }
 
-    public void CalculatorMoveDelay(){
+    void CalculatorMoveDelay(){
 
         try{
             // delay pentru a nu muta instant
@@ -189,7 +194,7 @@ public class Game {
 
     }
 
-    public void HandleCalculatorNormalMove(){
+    void HandleCalculatorNormalMove(){
         if(CannotPlayCard(this.calculator, this.carte)){
 
             this.calculator.AddCard(this.pachet.TakeCard());
@@ -218,7 +223,7 @@ public class Game {
         }
     }
 
-    public void HandleCalculatorAttackMove(){
+    void HandleCalculatorAttackMove(){
 
         int index;
 
@@ -261,7 +266,7 @@ public class Game {
 
     }
 
-    public void HandlePlayerNormalMove(){
+    void HandlePlayerNormalMove(){
 
         System.out.println("'j' - joaca carte");
         System.out.println("'t' - trage carte");
@@ -303,7 +308,7 @@ public class Game {
         }
     }
 
-    public void HandlePlayerLosingAttack(){
+    void HandlePlayerLosingAttack(){
 
         System.out.println("Nu poti opri atacul, trebuie sa tragi "
                 + this.numarCartiAtac + " carti");
@@ -326,7 +331,7 @@ public class Game {
         this.esteAtacat = false;
     }
 
-    public void HandlePlayerAttackMove(){
+    void HandlePlayerAttackMove(){
 
         System.out.println("Esti atacat!");
         System.out.println("Joaca Doi sau J pentru contra-atac");

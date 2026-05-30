@@ -48,4 +48,8 @@ public class Deck {
     public boolean IsEmpty(){
         return this.pachet.isEmpty();
     }
+
+    public void RemoveCard(Card card){
+        this.pachet.remove(card);
+    }
 }
