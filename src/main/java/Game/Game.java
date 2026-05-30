@@ -2,7 +2,6 @@ package Game;
 
 import Entities.Card;
 import Entities.Common.Rank;
-import Entities.Common.Suit;
 import Entities.Deck;
 import Entities.Player;
 
@@ -17,7 +16,6 @@ public class Game {
     Card carte;
     boolean playerTurn;
     Scanner input = new Scanner(System.in);
-    Suit culoare = null;
     boolean esteAtacat = false;
     int numarCartiAtac = 2;
 
@@ -158,17 +156,20 @@ public class Game {
         return true;
     }
 
-    public void HandlePlayerSpecialCard(Card card, Player player){
+    public void HandleSpecialCard(Card card, Player player){
         switch(card.valoare){
             case As: this.playerTurn = HandleAce(this.playerTurn);
                 break;
             case Sapte: {
                     if(player == this.jucator){
-                        this.culoare = HandlePlayerSeven();
+                        this.carte.culoare = HandlePlayerSeven();
+
                     }
                     else if(player == this.calculator){
-                        this.culoare = HandleCalculatorSeven(this.calculator);
+                        this.carte.culoare = HandleCalculatorSeven(this.calculator);
                     }
+                System.out.println("Culoarea cartii jucate a fost schimbata in "
+                        + this.carte.culoare.toString().toUpperCase());
                 }
                 break;
             default:
@@ -203,6 +204,8 @@ public class Game {
 
                     this.carte = this.calculator.PlayCard(i);
 
+                    HandleSpecialCard(this.carte, this.calculator);
+
                     if((this.carte.valoare == Rank.J)
                             || (this.carte.valoare == Rank.Doi)){
 
@@ -227,7 +230,7 @@ public class Game {
             System.out.println(this.calculator.GetCardByIndex(index).toString());
 
             this.numarCartiAtac += 2;
-            System.out.println("Numarul de carti din atac este:" + numarCartiAtac);
+            System.out.println("Numarul de carti din atac este: " + numarCartiAtac);
 
             this.carte = this.calculator.PlayCard(index);
         }
@@ -249,7 +252,8 @@ public class Game {
             for(int i = 0; i < this.numarCartiAtac; i++){
                 this.calculator.AddCard(this.pachet.TakeCard());
             }
-            System.out.println("Calculatorul a luat " + this.numarCartiAtac + " din pachet");
+            System.out.println("Calculatorul a luat " + this.numarCartiAtac
+                                + " carti din pachet");
 
             this.numarCartiAtac = 2;
             this.esteAtacat = false;
@@ -284,7 +288,7 @@ public class Game {
 
                         this.carte = this.jucator.PlayCard(index);
 
-                        HandlePlayerSpecialCard(this.carte, this.jucator);
+                        HandleSpecialCard(this.carte, this.jucator);
 
                         if(this.carte.valoare == Rank.Doi
                                 || this.carte.valoare == Rank.J){
@@ -327,7 +331,7 @@ public class Game {
         System.out.println("Esti atacat!");
         System.out.println("Joaca Doi sau J pentru contra-atac");
         System.out.println("Joaca Patru sau K pentru a opri atacul");
-        System.lineSeparator();
+        System.out.println();
         System.out.println("'j' - joaca carte");
         System.out.println("'t' - trage carte");
 
@@ -341,7 +345,8 @@ public class Game {
                     this.jucator.AddCard(this.pachet.TakeCard());
                 }
 
-                System.out.println("Ai luat " + this.numarCartiAtac + " din pachet");
+                System.out.println("Ai luat " + this.numarCartiAtac
+                                    + " carti din pachet");
 
                 this.numarCartiAtac = 2;
                 this.esteAtacat = false;
@@ -362,7 +367,10 @@ public class Game {
                         System.out.println(this.jucator.GetCardByIndex(index).toString());
 
                         this.carte = this.jucator.PlayCard(index);
+
                         this.numarCartiAtac += 2;
+                        System.out.println("Numarul de carti din atac este: " + numarCartiAtac);
+
                         break;
                     }
 
